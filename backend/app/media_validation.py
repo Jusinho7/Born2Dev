@@ -16,7 +16,7 @@ def validate_image(content: bytes) -> None:
             img.verify()
     except ValueError:
         raise
-    except Exception:  # fichier corrompu, bombe de décompression, etc.
+    except Exception:
         raise ValueError("Fichier image invalide ou corrompu")
 
 
