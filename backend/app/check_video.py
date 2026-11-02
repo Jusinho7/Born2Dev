@@ -67,9 +67,10 @@ def _callback_url() -> str:
 
 
 def submit_video(content: bytes, filename: str) -> dict[str, str]:
-    if not all([API_USER, API_SECRET, MODELS]):
+    if not all([API_USER, API_SECRET, MODELS, VIDEO_API_URL]):
         raise RuntimeError(
-            "api_user, api_secret et models_video doivent être configurés."
+            "api_user, api_secret, models_video et video_url "
+            "doivent être configurés."
         )
 
     response = requests.post(
