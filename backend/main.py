@@ -1,8 +1,8 @@
 import requests
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 
-from check_image import check_image
-from check_video import (
+from motor.check_image import check_image
+from motor.check_video import (
     get_video_job,
     save_video_callback,
     submit_video,

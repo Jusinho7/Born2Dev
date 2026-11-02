@@ -1,16 +1,63 @@
-# React + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interface web de l'application **Fanilo**, construite avec React et Vite. Elle contient actuellement les pages de connexion et d'inscription, la gestion du thème et une page d'accueil temporaire après connexion.
 
-Currently, two official plugins are available:
+## Prérequis
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js compatible avec Vite 8
+- npm
+- L'API configurée et accessible si vous souhaitez tester les formulaires
 
-## React Compiler
+## Installation et lancement
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Depuis le dossier `frontend/` :
 
-## Expanding the Oxlint configuration
+```bash
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Vite affiche l'adresse locale à ouvrir dans le navigateur (généralement `http://localhost:5173`).
+
+## Configuration de l'API
+
+Le client utilise la variable `VITE_API_URL`. Créez un fichier `.env.local` dans `frontend/` :
+
+```dotenv
+VITE_API_URL=http://localhost:8080/api
+```
+
+Cette valeur est l'URL de base Axios : les chemins comme `/login` et `/register` y sont ajoutés. Redémarrez Vite après toute modification de variable d'environnement.
+
+> **À noter :** le frontend suppose une API d'authentification exposant `/login`, `/register`, `/logout`, `/refresh-token`, `/verify-token` et `/me`. Le backend présent dans ce dépôt ne fournit actuellement que les routes de détection d'images et de vidéos. Il faut donc connecter un service d'authentification compatible avant d'utiliser les formulaires.
+>
+> L'URL par défaut du frontend se termine par `/api`, alors que les routes de détection du backend sont actuellement exposées sans ce préfixe (`/check`, `/check-video`, etc.). Ajustez `VITE_API_URL` ou configurez un proxy selon le routage choisi. Le backend ne configure pas encore CORS ; pour un appel direct depuis une origine différente, cette configuration devra également être ajoutée.
+
+## Commandes disponibles
+
+```bash
+npm run dev      # Serveur de développement avec rechargement à chaud
+npm run build    # Génère la version de production dans dist/
+npm run preview  # Prévisualise le build de production
+npm run lint     # Vérifie le code avec Oxlint
+```
+
+## Structure du projet
+
+```text
+src/
+├── components/  # Composants partagés
+├── contexts/    # Contextes React, dont le thème
+├── pages/       # Pages Connexion et Inscription
+├── services/    # Client HTTP et gestion de l'authentification
+├── styles/      # Styles Sass
+└── utils/       # Fonctions utilitaires
+public/          # Ressources statiques
+```
+
+## Authentification actuelle
+
+- La connexion envoie `email` et `password`, puis attend une réponse contenant `token` et éventuellement `refreshToken`.
+- L'inscription envoie `username`, `email`, `password` et `password_confirmation`.
+- Les jetons sont conservés dans le `localStorage`. Les routes privées redirigent vers `/login` si aucun jeton valide n'est disponible.
+- La page `/` après connexion est un tableau de bord temporaire.

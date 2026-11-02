@@ -1,3 +1,4 @@
+"""Image checking functionality for the AI Media Detector."""
 import hashlib
 import json
 import os
