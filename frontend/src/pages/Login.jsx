@@ -30,7 +30,7 @@ const Login = () => {
         password: formData.password,
       });
 
-      const { token, refreshToken } = res.data;
+      const { access_token: token, refresh_token: refreshToken } = res.data;
       if (!token) {
         throw new Error("Réponse invalide du serveur (token manquant)");
       }
