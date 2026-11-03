@@ -166,9 +166,8 @@ const ArticleVerification = () => {
   const loadWorkspace = useCallback(async () => {
     try {
       applyWorkspaceData(await fetchWorkspaceData());
+      setError("");
     } catch (requestError) {
-      if (requestId !== claimsRequest.current) return;
-      setFailedClaimsArticleId(articleId);
       setError(
         getErrorMessage(
           requestError,
@@ -228,7 +227,10 @@ const ArticleVerification = () => {
     let active = true;
     fetchWorkspaceData()
       .then((data) => {
-        if (active) applyWorkspaceData(data);
+        if (active) {
+          applyWorkspaceData(data);
+          setError("");
+        }
       })
       .catch((requestError) => {
         if (active) {
@@ -243,6 +245,7 @@ const ArticleVerification = () => {
       .finally(() => {
         if (active) setLoading(false);
       });
+
     return () => {
       active = false;
     };
@@ -505,6 +508,11 @@ const ArticleVerification = () => {
               <div className="verification-loading">
                 <LoaderCircle className="spin" size={20} />
                 <span>Chargement...</span>
+              </div>
+            ) : error && !articles.length ? (
+              <div className="sidebar-empty">
+                <CircleAlert size={22} />
+                <p>Les articles ne peuvent pas être affichés pour le moment.</p>
               </div>
             ) : filteredArticles.length ? (
               filteredArticles.map((article) => (
@@ -1076,7 +1084,7 @@ const ArticleVerification = () => {
                 Ajoutez un article dans le panneau de gauche. Ses affirmations
                 et preuves seront regroupées ici.
               </p>
-              {!sources.length && !loading && (
+              {!sources.length && !loading && !error && (
                 <span className="source-prerequisite">
                   <CircleAlert size={16} />
                   Ajoutez d’abord une source à l’annuaire pour enregistrer un

@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-import requests
-from fastapi import (
-    Depends,
-    FastAPI,
-    File,
-    HTTPException,
-    Query,
-    Request,
-    UploadFile,
-)
-
-=======
 import os
 from contextlib import asynccontextmanager
 
@@ -27,7 +14,6 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.features.authentication.router import router as authentication_router
->>>>>>> 660e4d4 (add projet version 1.0.0)
 from app.check_video import (
     get_video_job,
     save_video_callback,
@@ -39,14 +25,9 @@ from app.features.source_reliability.router import (
     articles_router as article_verification_router,
     router as source_reliability_router,
 )
-<<<<<<< HEAD
-from app.media_validation import validate_video
-from app.security import rate_limit, require_api_key
-
-app = FastAPI(title="Check-Eko - AI Media Detector")
-=======
 from app.features.national_watch.router import router as national_watch_router
 from app.features.national_watch.database import init_db as init_monitoring_db
+from app.features.experts_directory.router import router as experts_directory_router
 from app.media_validation import validate_video
 from app.security import rate_limit, require_authenticated
 
@@ -72,7 +53,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-API-Key"],
 )
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 MAX_VIDEO_SIZE = 100 * 1024 * 1024
 ALLOWED_VIDEO_TYPES = {
@@ -83,21 +63,13 @@ ALLOWED_VIDEO_TYPES = {
     "video/x-matroska",
 }
 
-<<<<<<< HEAD
-protected = [Depends(require_api_key), Depends(rate_limit)]
-app.include_router(image_authenticity_router)
-app.include_router(source_reliability_router)
-app.include_router(article_verification_router)
-
-
-=======
 protected = [Depends(require_authenticated), Depends(rate_limit)]
 app.include_router(authentication_router)
 app.include_router(image_authenticity_router)
 app.include_router(source_reliability_router)
 app.include_router(article_verification_router)
 app.include_router(national_watch_router)
->>>>>>> 660e4d4 (add projet version 1.0.0)
+app.include_router(experts_directory_router)
 @app.post("/check-video", status_code=202, dependencies=protected)
 def check_video(file: UploadFile = File(...)):
     if file.content_type not in ALLOWED_VIDEO_TYPES:

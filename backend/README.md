@@ -1,10 +1,6 @@
 # Backend Check-Eko
 
-<<<<<<< HEAD
-API REST FastAPI Check-Eko pour analyser des images et des vidéos avec Sightengine, lire les métadonnées EXIF, vérifier les manifestes de provenance C2PA et protéger les routes par clé API.
-=======
 API REST FastAPI Check-Eko pour gérer les sessions utilisateurs, vérifier les sources et articles, analyser des images et des vidéos, et lire les métadonnées EXIF/C2PA.
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 ## Prérequis
 
@@ -46,12 +42,9 @@ Exemple de configuration :
 ```dotenv
 api_key=REMPLACEZ_PAR_UNE_CLE_ALEATOIRE
 rate_limit_per_minute=30
-<<<<<<< HEAD
-=======
 auth_secret_key=REMPLACEZ_PAR_UN_SECRET_ALEATOIRE_D_AU_MOINS_32_CARACTERES
 auth_db=auth.sqlite3
 frontend_origins=http://localhost:5173,http://127.0.0.1:5173
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 api_user=VOTRE_IDENTIFIANT_SIGHTENGINE
 api_secret=VOTRE_SECRET_SIGHTENGINE
@@ -65,26 +58,20 @@ video_callback_token=REMPLACEZ_PAR_UN_TOKEN_ALEATOIRE
 video_results_db=video_results.sqlite3
 source_directory_db=source_directory.sqlite3
 
-<<<<<<< HEAD
-=======
 # Veille nationale
 MONITORING_DATABASE_URL=sqlite:///./monitoring.sqlite3
 MONITORING_ADMIN_EMAILS=admin@check-eko.org
 CELERY_BROKER_URL=redis://localhost:6379/0
 CELERY_RESULT_BACKEND=redis://localhost:6379/0
 
->>>>>>> 660e4d4 (add projet version 1.0.0)
 # Facultatif : chemin local vers les certificats racines de confiance C2PA (PEM)
 c2pa_trust_anchors_path=/chemin/vers/anchors.pem
 ```
 
 Générez des secrets distincts, par exemple avec `openssl rand -hex 32`. Ne publiez et ne commitez jamais `.env`. La clé `api_key` est envoyée par les clients dans l'en-tête `X-API-Key` ; ne l'intégrez pas dans le code d'un frontend public. Si des identifiants réels ont été exposés dans un dépôt ou un exemple, révoquez-les et remplacez-les.
 
-<<<<<<< HEAD
-=======
 `auth_secret_key` signe les jetons de session : fournissez une valeur aléatoire dédiée d'au moins 32 caractères et conservez-la stable entre les redémarrages. `auth_db` stocke les comptes et les sessions. `frontend_origins` contient les origines exactes autorisées par CORS, séparées par des virgules. Les mots de passe sont stockés sous forme de dérivés scrypt ; le backend émet des jetons d'accès de 15 minutes et des jetons de renouvellement rotatifs de 7 jours.
 
->>>>>>> 660e4d4 (add projet version 1.0.0)
 Les variables `api_user`, `api_secret`, `url` et `models` sont nécessaires à l'analyse d'images. Pour l'analyse vidéo, renseignez aussi `video_url`, `models_video`, `video_callback_url` et `video_callback_token`. Le callback doit être publiquement accessible en HTTPS. `video_results_db` est facultative et vaut `video_results.sqlite3` par défaut.
 
 La route de rapport combine Sightengine, EXIF et C2PA. Pour vérifier si le certificat C2PA est approuvé par une autorité de confiance, fournissez un fichier PEM à `c2pa_trust_anchors_path`. Sans ce fichier, le backend peut examiner le manifeste, mais ne peut pas déclarer son certificat de confiance. La liste officielle peut être téléchargée depuis [contentcredentials.org/trust/anchors.pem](https://contentcredentials.org/trust/anchors.pem) ; conservez-la localement et mettez-la à jour selon vos besoins.
@@ -104,30 +91,6 @@ L'API répond sur `http://localhost:8080`. La route `/health` vérifie la dispon
 | Méthode | Route | Authentification | Description |
 | --- | --- | --- | --- |
 | `GET` | `/health` | Aucune | Vérifie que le serveur répond. |
-<<<<<<< HEAD
-| `POST` | `/check` | `X-API-Key` | Envoie une image à Sightengine pour détecter si elle a été générée par IA. |
-| `POST` | `/authenticity` | `X-API-Key` | Produit un rapport combinant score IA, EXIF et provenance C2PA. |
-| `POST` | `/exif` | `X-API-Key` | Lit les métadonnées EXIF sélectionnées d'une image. |
-| `POST` | `/check-video` | `X-API-Key` | Soumet une vidéo au traitement asynchrone (HTTP 202). |
-| `GET` | `/check-video/{request_id}` | `X-API-Key` | Récupère le statut et le résultat d'une tâche vidéo. |
-| `POST` | `/video-callback?token=...` | Token de callback | Reçoit et enregistre le résultat envoyé par Sightengine. |
-| `GET` | `/sources` | `X-API-Key` | Liste les sources enregistrées. |
-| `POST` | `/sources` | `X-API-Key` | Ajoute une source à l'annuaire. |
-| `GET` | `/sources/{source_id}` | `X-API-Key` | Consulte une source. |
-| `PUT` | `/sources/{source_id}` | `X-API-Key` | Modifie une source. |
-| `DELETE` | `/sources/{source_id}` | `X-API-Key` | Supprime une source. |
-| `POST` | `/sources/{source_id}/evaluations` | `X-API-Key` | Ajoute une évaluation datée avec notes justificatives. |
-| `GET` | `/sources/{source_id}/evaluations` | `X-API-Key` | Consulte l'historique des évaluations. |
-| `GET` | `/articles` | `X-API-Key` | Liste les articles soumis manuellement à vérification. |
-| `POST` | `/articles` | `X-API-Key` | Enregistre un article associé à une source de l'annuaire. |
-| `GET` | `/articles/{article_id}` | `X-API-Key` | Consulte un article. |
-| `GET` | `/articles/{article_id}/claims` | `X-API-Key` | Liste les affirmations de l'article et leur état de recoupement. |
-| `POST` | `/articles/{article_id}/claims` | `X-API-Key` | Ajoute une affirmation à vérifier. |
-| `GET` | `/claims/{claim_id}/evidence` | `X-API-Key` | Liste les éléments de preuve associés à une affirmation. |
-| `POST` | `/claims/{claim_id}/evidence` | `X-API-Key` | Ajoute un élément de preuve associé à une source de l'annuaire. |
-
-Les routes protégées sont limitées à 30 requêtes par minute et par adresse IP par défaut ; configurez `rate_limit_per_minute` pour modifier cette limite. Une clé manquante ou incorrecte produit une réponse 401. Le callback vidéo ne demande pas `X-API-Key` : il valide le paramètre `token` avec `video_callback_token`.
-=======
 | `POST` | `/register` | Aucune | Crée un compte (mot de passe de 8 caractères minimum). |
 | `POST` | `/login` | Aucune | Ouvre une session et retourne les jetons d'accès et de renouvellement. |
 | `POST` | `/refresh-token` | Jeton de renouvellement | Renouvelle et fait tourner les jetons de session. |
@@ -158,7 +121,6 @@ Les routes protégées sont limitées à 30 requêtes par minute et par adresse 
 Les routes protégées sont limitées à 30 requêtes par minute et par adresse IP par défaut ; configurez `rate_limit_per_minute` pour modifier cette limite. Une session est révoquée à la déconnexion. Les routes acceptent aussi `X-API-Key` pour les intégrations serveur de confiance ; ne placez jamais cette clé dans le frontend. Le callback vidéo ne demande pas de session : il valide le paramètre `token` avec `video_callback_token`.
 
 Pour créer le premier compte, utilisez la page d'inscription du frontend ou appelez `POST /register` avec `username`, `email`, `password` et `password_confirmation`, puis connectez-vous via `POST /login`. Le client envoie ensuite `Authorization: Bearer <token>` automatiquement. N'exposez jamais `auth_secret_key` ou `api_key` dans le code JavaScript ni dans un dépôt public.
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 ### Exemples d'appels
 
@@ -291,11 +253,7 @@ backend/
 │   ├── features/
 │   │   ├── image_authenticity/  # Détection IA, EXIF, C2PA et routes image
 │   │   ├── source_reliability/  # Sources, évaluations et recoupement
-<<<<<<< HEAD
-│   │   ├── national_watch/      # Besoin 3
-=======
 │   │   ├── national_watch/      # RSS, articles, carte, tendances et alertes
->>>>>>> 660e4d4 (add projet version 1.0.0)
 │   │   ├── multilingual/        # Besoin 4
 │   │   ├── offline_access/      # Besoin 5
 │   │   ├── experts_directory/   # Besoin 6
@@ -306,17 +264,15 @@ backend/
 │   └── security.py          # Clé API et limitation de débit
 ├── main.py                  # Application FastAPI et routes
 ├── pyproject.toml           # Métadonnées et dépendances
-<<<<<<< HEAD
-└── test_api.py              # Tests des routes
-```
-
-Chaque package de besoin peut évoluer séparément dans le code ; tous sont actuellement exécutés et déployés dans la même API FastAPI. Le package `image_authenticity` est le premier fonctionnel. Les autres packages sont des espaces réservés, prêts à recevoir leur implémentation quand nous aborderons ces besoins.
-=======
 ├── test_api.py              # Tests des fonctions existantes
 └── test_national_watch.py   # Tests API, RSS, régions et permissions
 ```
 
 Chaque package de besoin peut évoluer séparément dans le code ; tous sont actuellement exécutés et déployés dans la même API FastAPI. Le package `national_watch` fournit le centre de veille décrit ci-dessous.
+
+## Annuaire des experts
+
+Le tableau de bord permet de rechercher, créer, modifier et supprimer des fiches d’experts. Chaque fiche peut contenir le nom, le domaine d’expertise, l’organisation, la région, les langues, les coordonnées et une présentation. Les fiches sont stockées dans `experts_directory.sqlite3` (ou dans le chemin défini par `experts_directory_db`) et les routes `/experts` exigent une authentification, comme les autres fonctions privées de l’API.
 
 ## Veille nationale
 
@@ -373,15 +329,10 @@ Depuis la racine du dépôt, après installation des dépendances :
 ```bash
 python -m pytest backend/test_api.py backend/test_national_watch.py -q
 ```
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 ## Notes
 
 - Le cache des résultats d'images est en mémoire et est réinitialisé au redémarrage.
 - Les tâches vidéo sont enregistrées dans SQLite ; sauvegardez le fichier configuré si vous devez conserver ces données.
 - L'API ne définit pas de route `/` : utilisez `/health` ou `/docs`.
-<<<<<<< HEAD
-- Les routes d'authentification consommées par le frontend ne sont pas fournies par ce backend.
-=======
 - Les tests de veille utilisent une base SQLite temporaire et un flux RSS synthétique ; ils ne sollicitent aucun média externe ni serveur PostgreSQL/Redis.
->>>>>>> 660e4d4 (add projet version 1.0.0)

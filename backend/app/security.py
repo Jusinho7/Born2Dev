@@ -8,12 +8,9 @@ from collections import defaultdict, deque
 from dotenv import load_dotenv
 from fastapi import Header, HTTPException, Request
 
-<<<<<<< HEAD
-=======
 from app.features.authentication import store as auth_store
 from app.features.authentication.tokens import decode_token
 
->>>>>>> 660e4d4 (add projet version 1.0.0)
 load_dotenv()
 
 API_KEY = os.getenv("api_key")
@@ -32,8 +29,6 @@ def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
         raise HTTPException(401, "Clé d'API manquante ou invalide")
 
 
-<<<<<<< HEAD
-=======
 def require_authenticated(
     authorization: str | None = Header(default=None),
     x_api_key: str | None = Header(default=None),
@@ -77,7 +72,6 @@ def require_authenticated(
     return {**user, "session_id": str(claims["sid"])}
 
 
->>>>>>> 660e4d4 (add projet version 1.0.0)
 def rate_limit(request: Request) -> None:
     """Limite le nombre de requêtes par minute et par adresse IP."""
     client = request.client.host if request.client else "inconnu"

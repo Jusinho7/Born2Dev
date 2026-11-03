@@ -32,14 +32,11 @@ dependencies = [
     "packaging==26.3",
     "pandas==3.1.0",
     "pillow==13.0.0",
-<<<<<<< HEAD
-=======
     "SQLAlchemy>=2.0,<3.0",
     "psycopg[binary]>=3.2,<4.0",
     "redis>=5.2,<7.0",
     "celery[redis]>=5.4,<6.0",
     "feedparser>=6.0,<7.0",
->>>>>>> 660e4d4 (add projet version 1.0.0)
     "plum-py==0.8.7",
     "protobuf==7.36.2",
     "pyarrow==26.0.0",

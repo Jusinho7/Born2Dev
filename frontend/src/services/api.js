@@ -1,10 +1,6 @@
 import axios from "axios";
 
-<<<<<<< HEAD
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
-=======
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 const api = axios.create({
   baseURL: API_URL,
@@ -109,7 +105,7 @@ api.interceptors.response.use(
       !isAuthEndpoint(originalRequest.url);
 
     if (!shouldTryRefresh) {
-      console.error("❌ Erreur API:", getErrorMessage(error));
+      console.error("Erreur API:", getErrorMessage(error));
       return Promise.reject(error);
     }
 
@@ -152,7 +148,7 @@ api.interceptors.response.use(
         window.location.href = "/login";
       }
 
-      console.error("❌ Erreur API:", getErrorMessage(error));
+      console.error("Erreur API:", getErrorMessage(error));
       return Promise.reject(error);
     } finally {
       isRefreshing = false;

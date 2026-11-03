@@ -3,15 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import useDocumentTitle from "../components/useDocumentTitle";
-<<<<<<< HEAD
-
-const MIN_PASSWORD_LENGTH = 6;
-=======
 import LanguageSelector from "../components/LanguageSelector";
 import { Localized } from "../contexts/LanguageContext";
 
 const MIN_PASSWORD_LENGTH = 8;
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -61,11 +56,7 @@ const Register = () => {
         password_confirmation: formData.confirmPassword,
       });
 
-<<<<<<< HEAD
-      setMessage(res.data?.message || "Inscription réussie 🎉");
-=======
       setMessage(res.data?.message || "Inscription réussie");
->>>>>>> 660e4d4 (add projet version 1.0.0)
       setMessageType("success");
 
       setTimeout(() => navigate("/login"), 1500);
@@ -78,15 +69,11 @@ const Register = () => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="auth-page">
-=======
     <Localized>
     <div className="auth-page">
       <div className="auth-language">
         <LanguageSelector />
       </div>
->>>>>>> 660e4d4 (add projet version 1.0.0)
       <h1 className="auth-slogan">Ny vaovao marina</h1>
 
       <div className="auth-container">
@@ -193,10 +180,7 @@ const Register = () => {
         )}
       </div>
     </div>
-<<<<<<< HEAD
-=======
     </Localized>
->>>>>>> 660e4d4 (add projet version 1.0.0)
   );
 };
 

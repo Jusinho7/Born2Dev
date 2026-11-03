@@ -13,28 +13,16 @@ from app.features.source_reliability.schemas import (
     SourceInput,
     SourceRecord,
 )
-<<<<<<< HEAD
-from app.security import rate_limit, require_api_key
-=======
 from app.security import rate_limit, require_authenticated
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 router = APIRouter(
     prefix="/sources",
     tags=["Sources"],
-<<<<<<< HEAD
-    dependencies=[Depends(require_api_key), Depends(rate_limit)],
-)
-articles_router = APIRouter(
-    tags=["Vérification des articles"],
-    dependencies=[Depends(require_api_key), Depends(rate_limit)],
-=======
     dependencies=[Depends(require_authenticated), Depends(rate_limit)],
 )
 articles_router = APIRouter(
     tags=["Vérification des articles"],
     dependencies=[Depends(require_authenticated), Depends(rate_limit)],
->>>>>>> 660e4d4 (add projet version 1.0.0)
 )
 
 

@@ -11,7 +11,10 @@ body {
 }
 
 body.light {
-  background-color: #ffffff !important;
+  background:
+      radial-gradient(at 50% 0%, rgba(185, 28, 28, 0.08), transparent 55%),
+      radial-gradient(at 50% 100%, rgba(107, 114, 128, 0.12), transparent 55%),
+      #ffffff !important;
   color: #000000 !important;
 }
 
@@ -131,4 +134,41 @@ body.dark {
 @keyframes themeTransition {
   from { opacity: 0.95; }
   to   { opacity: 1; }
+}
+
+.project-brand-logo {
+  width: 60px;
+  height: auto;
+  object-fit: contain;
+    
+  display: block;
+  border-radius: 10px;
+
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.project-title {
+  font-size: 50rem;
+  margin: 0;
+  padding: 10px;
+  padding-top: 25px;
+  color: rgb(183, 14, 14)
+}
+
+.one {
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+}
+
+.two {
+  color: rgb(183, 14, 14);
+  font-weight: bold;
+}
+
+body.dark .project-dashboard .project-title .one {
+  color: #fff;
 }

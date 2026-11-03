@@ -1,12 +1,12 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BadgeCheck,
   BookOpenText,
+  Expand,
   FileImage,
   Globe,
-  Languages,
-  MonitorSmartphone,
+  LogOut,
   Moon,
   Newspaper,
   ShieldCheck,
@@ -14,13 +14,19 @@ import {
   Sun,
   TrendingUp,
   Users,
+  X,
 } from "lucide-react";
 import ArticleVerification from "./ArticleVerification";
+import ExpertsDirectory from "./ExpertsDirectory";
 import { useTheme } from "../contexts/DarkContext";
 import LanguageSelector from "../components/LanguageSelector";
 import { Localized } from "../contexts/LanguageContext";
 import { getUserInfo, logout } from "../services/auth";
+import { getErrorMessage } from "../utils/getErrorMessage";
 import api from "../services/api";
+import { useSearchParams } from "react-router-dom";
+import logo from "../../public/fanilo.png";
+import "../App.css";
 
 const MonitoringWorkspace = lazy(() => import("./MonitoringWorkspace"));
 
@@ -53,31 +59,13 @@ const moduleDefinitions = [
     detail: "Collecte RSS, recherche, carte régionale, tendances et alertes.",
   },
   {
-    key: "multilingual",
-    name: "Multilinguisme",
-    status: "En préparation",
-    color: "warning",
-    icon: Languages,
-    description: "Traductions, repérage des termes-clés et adaptation par langue.",
-    detail: "L’interface montre la structure du module sans backend complet.",
-  },
-  {
-    key: "offline",
-    name: "Accès hors ligne",
-    status: "En préparation",
-    color: "warning",
-    icon: MonitorSmartphone,
-    description: "Mise en cache, fichiers téléchargeables et lecture hors connexion.",
-    detail: "Le module est conçu pour un espace de travail déconnecté.",
-  },
-  {
     key: "experts",
     name: "Annuaire des experts",
-    status: "En préparation",
-    color: "warning",
+    status: "Actif",
+    color: "success",
     icon: Users,
     description: "Références de personnes-ressources, compétences et crédibilité.",
-    detail: "Le catalogue est prévu pour être enrichi par le réseau.",
+    detail: "Annuaire consultable des personnes-ressources et de leurs domaines.",
   },
   {
     key: "stats",
@@ -96,14 +84,14 @@ const moduleDefinitions = [
     icon: BookOpenText,
     description: "Conseils, modèles de rédaction et aide à la formulation.",
     detail: "Un espace de recommandations éditoriales est prévu ici.",
-  },
+  }
 ];
 
 const initialSummary = [
   { label: "Sources répertoriées", value: "12 +", accent: "green" },
   { label: "Articles à vérifier", value: "08", accent: "amber" },
   { label: "Images analysées", value: "05", accent: "blue" },
-  { label: "Module actifs", value: "2 / 8", accent: "purple" },
+  { label: "Modules actifs", value: "4 / 6", accent: "purple" },
 ];
 
 const defaultResult = {
@@ -119,14 +107,97 @@ const defaultResult = {
   },
 };
 
+const getAiSummary = (detection) => {
+  if (!detection) return "Aucune information disponible.";
+  if (detection.result === "générée par IA") {
+    return "Un indice suggère que cette image pourrait avoir été créée par une IA.";
+  }
+  if (detection.result === "réelle") {
+    return "Aucun indice clair d’image créée par une IA n’a été détecté.";
+  }
+  return "Le résultat de la détection IA n’est pas disponible.";
+};
+
+const getExifSummary = (exif) => {
+  if (!exif) return "Aucune information disponible.";
+  if (!exif.has_exif) {
+    return "Aucune information supplémentaire trouvée. Cela ne permet pas de confirmer l’origine de l’image.";
+  }
+  if (exif.editing_software_detected) {
+    return "Des informations indiquent que l’image a pu être modifiée avec un logiciel.";
+  }
+  return "Des informations sur l’image sont présentes, mais elles ne prouvent pas son origine.";
+};
+
+const getC2paSummary = (provenance) => {
+  if (!provenance) return "Aucune information disponible.";
+  const summaries = {
+    trusted: "L’origine est accompagnée d’une signature reconnue comme fiable.",
+    valid_untrusted:
+      "Une signature est présente, mais son auteur n’est pas reconnu comme fiable.",
+    invalid: "La signature d’origine n’a pas passé la vérification.",
+    unverified: "L’origine de l’image n’a pas pu être confirmée.",
+    not_found: "Aucune signature d’origine n’a été trouvée.",
+    unreadable: "Les informations sur l’origine n’ont pas pu être lues.",
+    unsupported_format: "Le format de cette image ne permet pas cette vérification.",
+  };
+  return summaries[provenance.status] || "L’origine de l’image n’a pas pu être confirmée.";
+};
+
 const ProjectDashboard = () => {
   const user = getUserInfo();
   const { darkMode, toggleTheme } = useTheme();
-  const [selectedModule, setSelectedModule] = useState("sources");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedModule = searchParams.get("module");
+  const selectedModule = moduleDefinitions.some((entry) => entry.key === requestedModule)
+    ? requestedModule
+    : "sources";
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [analysis, setAnalysis] = useState(defaultResult);
   const [errorMessage, setErrorMessage] = useState("");
+  const previewDialogRef = useRef(null);
+  const logoutDialogRef = useRef(null);
+
+  const setSelectedModule = (key) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (key === "sources") {
+      nextParams.delete("module");
+    } else {
+      nextParams.set("module", key);
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  useEffect(() => {
+    if (!previewUrl) return undefined;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
+  useEffect(() => {
+    const dialog = previewDialogRef.current;
+    if (!dialog) return;
+
+    if (isPreviewOpen && !dialog.open) {
+      dialog.showModal();
+    } else if (!isPreviewOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [isPreviewOpen]);
+
+  useEffect(() => {
+    const dialog = logoutDialogRef.current;
+    if (!dialog) return;
+
+    if (isLogoutDialogOpen && !dialog.open) {
+      dialog.showModal();
+    } else if (!isLogoutDialogOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [isLogoutDialogOpen]);
 
   const module = useMemo(
     () => moduleDefinitions.find((entry) => entry.key === selectedModule) ?? moduleDefinitions[0],
@@ -152,13 +223,21 @@ const ProjectDashboard = () => {
     } catch (error) {
       setAnalysis(defaultResult);
       setErrorMessage(
-        error.response?.data?.detail ||
-          error.response?.data?.message ||
-          "Impossible d’analyser cette image.",
+        getErrorMessage(error, "Impossible d’analyser cette image."),
       );
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0] || null;
+    const nextPreviewUrl = file ? URL.createObjectURL(file) : "";
+    setSelectedFile(file);
+    setPreviewUrl(nextPreviewUrl);
+    setIsPreviewOpen(false);
+    setAnalysis(defaultResult);
+    setErrorMessage("");
   };
 
   return (
@@ -167,11 +246,14 @@ const ProjectDashboard = () => {
       <header className="project-header">
         <div className="project-brand-wrap">
           <div className="project-brand-mark">
-            <BadgeCheck size={18} />
+            <img
+                className="project-brand-logo"
+                src={logo}
+                alt="Logo"
+            />
           </div>
           <div>
-            <p className="eyebrow">CHECK-EKO</p>
-            <h1>Tableau de bord projet</h1>
+            <h1 className="project-title"><span className="one">CHECK</span>-<span className="two">EKO</span></h1>
           </div>
         </div>
 
@@ -193,7 +275,12 @@ const ProjectDashboard = () => {
             <span>{(user?.username || user?.email || "Rédaction").slice(0, 1).toUpperCase()}</span>
             <small>{user?.username || user?.email || "Rédaction"}</small>
           </div>
-          <button type="button" className="logout-button" onClick={logout}>
+          <button
+            type="button"
+            className="logout-button"
+            onClick={() => setIsLogoutDialogOpen(true)}
+          >
+            <LogOut size={15} />
             Déconnexion
           </button>
         </div>
@@ -250,12 +337,27 @@ const ProjectDashboard = () => {
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
-                    onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
+                    onChange={handleFileChange}
                   />
                   <FileImage size={28} />
                   <strong>{selectedFile ? selectedFile.name : "Choisir une image"}</strong>
                   <small>PNG, JPEG ou WEBP · jusqu’à 10 Mo</small>
                 </label>
+                {selectedFile && previewUrl && (
+                  <button
+                    type="button"
+                    className="image-preview-trigger"
+                    onClick={() => setIsPreviewOpen(true)}
+                    aria-label={`Agrandir l’aperçu de ${selectedFile.name}`}
+                    title="Agrandir l’aperçu"
+                  >
+                    <img src={previewUrl} alt={`Aperçu de ${selectedFile.name}`} />
+                    <span>
+                      <Expand size={14} />
+                      Agrandir l’image
+                    </span>
+                  </button>
+                )}
                 <button
                   type="button"
                   className="primary-button"
@@ -266,25 +368,31 @@ const ProjectDashboard = () => {
                 </button>
               </div>
 
-              {errorMessage && <div className="error-box">{errorMessage}</div>}
+              {errorMessage && <div className="error-box" role="alert">{errorMessage}</div>}
 
               <div className="result-card">
                 <p className="eyebrow">RAPPORT</p>
                 <h3>{analysis.name || "Analyse d’image"}</h3>
-                <p className="result-note">{analysis.assessment.note}</p>
+                <div className="result-overview">
+                  <strong>Résultat non concluant</strong>
+                  <p>
+                    Ces vérifications donnent des indices, mais ne permettent
+                    pas de confirmer avec certitude si l’image est authentique.
+                </p>
+                </div>
 
                 <div className="signal-grid">
                   <div className="signal-box">
                     <span>Détection IA</span>
-                    <strong>{analysis.signals.ai_detection ? JSON.stringify(analysis.signals.ai_detection) : "—"}</strong>
+                    <strong>{getAiSummary(analysis.signals.ai_detection)}</strong>
                   </div>
                   <div className="signal-box">
                     <span>EXIF</span>
-                    <strong>{analysis.signals.exif ? JSON.stringify(analysis.signals.exif) : "—"}</strong>
+                    <strong>{getExifSummary(analysis.signals.exif)}</strong>
                   </div>
                   <div className="signal-box">
                     <span>C2PA</span>
-                    <strong>{analysis.signals.c2pa_provenance ? JSON.stringify(analysis.signals.c2pa_provenance) : "—"}</strong>
+                    <strong>{getC2paSummary(analysis.signals.c2pa_provenance)}</strong>
                   </div>
                 </div>
               </div>
@@ -303,9 +411,12 @@ const ProjectDashboard = () => {
             </Suspense>
           )}
 
+          {module.key === "experts" && <ExpertsDirectory />}
+
           {module.key !== "authenticity" &&
             module.key !== "sources" &&
-            module.key !== "watch" && (
+            module.key !== "watch" &&
+            module.key !== "experts" && (
             <div className="placeholder-card">
               <div className="placeholder-icon">
                 <Sparkles size={22} />
@@ -322,6 +433,73 @@ const ProjectDashboard = () => {
           )}
         </section>
       </section>
+
+      {previewUrl && selectedFile && (
+        <dialog
+          ref={previewDialogRef}
+          className="image-preview-dialog"
+          aria-label={`Aperçu de ${selectedFile.name}`}
+          onClose={() => setIsPreviewOpen(false)}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsPreviewOpen(false);
+            }
+          }}
+        >
+          <div className="image-preview-dialog-header">
+            <strong>{selectedFile.name}</strong>
+            <button
+              type="button"
+              onClick={() => setIsPreviewOpen(false)}
+              aria-label="Fermer l’aperçu"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <img
+            className="image-preview-large"
+            src={previewUrl}
+            alt={`Aperçu agrandi de ${selectedFile.name}`}
+          />
+        </dialog>
+      )}
+
+      <dialog
+        ref={logoutDialogRef}
+        className="logout-confirm-dialog"
+        aria-labelledby="logout-confirm-title"
+        aria-describedby="logout-confirm-description"
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            setIsLogoutDialogOpen(false);
+          }
+        }}
+      >
+        <div className="logout-confirm-icon">
+          <LogOut size={20} />
+        </div>
+        <h2 id="logout-confirm-title">Confirmer la déconnexion</h2>
+        <p id="logout-confirm-description">
+          Voulez-vous vraiment vous déconnecter de votre compte ?
+        </p>
+        <div className="logout-confirm-actions">
+          <button
+            type="button"
+            className="logout-cancel-button"
+            onClick={() => setIsLogoutDialogOpen(false)}
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            className="logout-confirm-button"
+            onClick={logout}
+          >
+            Oui, me déconnecter
+          </button>
+        </div>
+      </dialog>
 
       <section className="bottom-grid">
         <article className="bottom-card">
@@ -341,7 +519,13 @@ const ProjectDashboard = () => {
             <strong>Réseau d’experts</strong>
           </div>
           <p>Personnes-ressources, expertise, contact et crédibilité.</p>
-          <span className="beta-tag">À venir</span>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => setSelectedModule("experts")}
+          >
+            Ouvrir l’annuaire <ArrowRight size={15} />
+          </button>
         </article>
 
         <article className="bottom-card">

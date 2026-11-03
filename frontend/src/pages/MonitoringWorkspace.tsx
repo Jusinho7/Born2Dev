@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import { Localized, useLanguage } from "../contexts/LanguageContext";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 const MonitoringMap = lazy(() => import("./MonitoringMap"));
 const VolumeChart = lazy(() =>
@@ -210,14 +211,6 @@ const EMPTY_SOURCE: SourceForm = {
   collection_interval_minutes: 60,
   is_active: true,
 };
-const toErrorMessage = (error: unknown) => {
-  if (typeof error === "object" && error !== null && "response" in error) {
-    const response = (error as { response?: { data?: { detail?: string } } }).response;
-    if (response?.data?.detail) return response.data.detail;
-  }
-  return error instanceof Error ? error.message : "La requête a échoué.";
-};
-
 const formatDate = (value: string | null, locale: string) =>
   value
     ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
@@ -304,7 +297,7 @@ const MonitoringWorkspace = () => {
       try {
         await refreshOverview();
       } catch (requestError) {
-        setError(toErrorMessage(requestError));
+        setError(getErrorMessage(requestError));
       }
     };
     void load();
@@ -320,7 +313,7 @@ const MonitoringWorkspace = () => {
           setContradictions(response.data);
         }
       } catch (requestError) {
-        setError(toErrorMessage(requestError));
+        setError(getErrorMessage(requestError));
       }
     };
     void load();
@@ -334,7 +327,7 @@ const MonitoringWorkspace = () => {
       await action();
       if (successMessage) setNotice(successMessage);
     } catch (requestError) {
-      setError(toErrorMessage(requestError));
+      setError(getErrorMessage(requestError));
     } finally {
       setBusy(false);
     }
@@ -602,7 +595,7 @@ const MonitoringWorkspace = () => {
             <select value={languageFilter} onChange={(event) => { setLanguageFilter(event.target.value); setPage(1); }}><option value="">Toutes les langues</option><option>Malagasy</option><option>Français</option><option>English</option></select>
             <label className="monitor-date-filter">Du<input type="date" value={startDate} onChange={(event) => { setStartDate(event.target.value); setPage(1); }} /></label>
             <label className="monitor-date-filter">Au<input type="date" value={endDate} onChange={(event) => { setEndDate(event.target.value); setPage(1); }} /></label>
-            <button type="button" className="monitor-refresh" onClick={() => loadArticles().catch((requestError: unknown) => setError(toErrorMessage(requestError)))}>Filtrer</button>
+            <button type="button" className="monitor-refresh" onClick={() => loadArticles().catch((requestError: unknown) => setError(getErrorMessage(requestError)))}>Filtrer</button>
           </div>
           {renderArticleList(articles?.items ?? [])}
           <div className="monitor-pagination">

@@ -5,21 +5,13 @@ from app.features.image_authenticity.ai_detection import check_image
 from app.features.image_authenticity.c2pa import inspect_c2pa_provenance
 from app.features.image_authenticity.exif import read_exif
 from app.media_validation import validate_image
-<<<<<<< HEAD
-from app.security import rate_limit, require_api_key
-=======
 from app.security import rate_limit, require_authenticated
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 router = APIRouter()
 
 MAX_SIZE = 10 * 1024 * 1024
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
-<<<<<<< HEAD
-protected = [Depends(require_api_key), Depends(rate_limit)]
-=======
 protected = [Depends(require_authenticated), Depends(rate_limit)]
->>>>>>> 660e4d4 (add projet version 1.0.0)
 
 
 def _read_image_upload(file: UploadFile) -> bytes:

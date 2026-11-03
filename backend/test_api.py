@@ -3,20 +3,15 @@ os.environ["api_key"] = "secret"
 os.environ["rate_limit_per_minute"] = "5"
 os.environ["video_callback_token"] = "tok"
 os.environ["video_results_db"] = "/tmp/test_video.sqlite3"
-<<<<<<< HEAD
-
-from fastapi.testclient import TestClient
-from PIL import Image
-=======
 os.environ["auth_secret_key"] = "test-auth-secret-key-for-check-eko-123456"
 
 from fastapi.testclient import TestClient
 from PIL import Image
 from app.features.authentication import store as auth_store
->>>>>>> 660e4d4 (add projet version 1.0.0)
 from app.features.image_authenticity import router as image_authenticity
 from app.features.image_authenticity.c2pa import inspect_c2pa_provenance
 from app.features.source_reliability import store as source_store
+from app.features.experts_directory import store as experts_store
 import app.security as security
 security.API_KEY = "secret"; security.RATE_LIMIT = 5
 import app.check_video as check_video; check_video.CALLBACK_TOKEN = "tok"
@@ -34,6 +29,21 @@ def source_payload(**overrides):
         "language": "Malagasy",
         "url": "https://example.org",
         "description": "Source de test",
+        **overrides,
+    }
+
+
+def expert_payload(**overrides):
+    return {
+        "full_name": "Dr. Marie Rakoto",
+        "expertise": "Santé publique",
+        "organization": "Université d’Antananarivo",
+        "region": "Analamanga",
+        "languages": "Malagasy, français",
+        "email": "marie@example.org",
+        "phone": "+261 34 00 000 00",
+        "website": "https://example.org",
+        "bio": "Spécialiste en santé communautaire.",
         **overrides,
     }
 
@@ -57,14 +67,11 @@ def source_request(method, url, **kwargs):
     return c.request(method, url, headers=H, **kwargs)
 
 
-<<<<<<< HEAD
-=======
 def auth_request(method, url, **kwargs):
     security._hits.clear()
     return c.request(method, url, **kwargs)
 
 
->>>>>>> 660e4d4 (add projet version 1.0.0)
 def png():
     b = io.BytesIO(); Image.new("RGB", (10, 10), "red").save(b, "PNG"); return b.getvalue()
 
@@ -163,6 +170,44 @@ def test_source_directory_crud(tmp_path, monkeypatch):
     assert source_request("GET", f"/sources/{source_id}").status_code == 404
 
 
+def test_experts_directory_crud(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        experts_store, "DB_PATH", tmp_path / "experts.sqlite3"
+    )
+
+    created = source_request("POST", "/experts", json=expert_payload())
+    assert created.status_code == 201, created.text
+    record = created.json()
+    expert_id = record["id"]
+    assert record["full_name"] == "Dr. Marie Rakoto"
+
+    fetched = source_request("GET", f"/experts/{expert_id}")
+    assert fetched.status_code == 200
+    assert fetched.json()["expertise"] == "Santé publique"
+
+    listed = source_request("GET", "/experts")
+    assert listed.status_code == 200
+    assert [expert["id"] for expert in listed.json()] == [expert_id]
+
+    updated = source_request(
+        "PUT",
+        f"/experts/{expert_id}",
+        json=expert_payload(full_name="Marie Rakoto"),
+    )
+    assert updated.status_code == 200
+    assert updated.json()["full_name"] == "Marie Rakoto"
+    assert updated.json()["updated_at"] >= record["updated_at"]
+
+    deleted = source_request("DELETE", f"/experts/{expert_id}")
+    assert deleted.status_code == 204
+    assert source_request("GET", f"/experts/{expert_id}").status_code == 404
+
+
+def test_experts_directory_requires_authentication():
+    security._hits.clear()
+    assert c.get("/experts").status_code == 401
+
+
 def test_source_directory_requires_api_key():
     security._hits.clear()
     response = c.get("/sources")
@@ -246,8 +291,6 @@ def test_source_delete_removes_evaluation_history(tmp_path, monkeypatch):
     assert source_store.list_evaluations(source["id"]) is None
 
 
-<<<<<<< HEAD
-=======
 def test_authentication_session_lifecycle(tmp_path, monkeypatch):
     monkeypatch.setattr(auth_store, "DB_PATH", tmp_path / "auth.sqlite3")
     monkeypatch.setattr(source_store, "DB_PATH", tmp_path / "sources.sqlite3")
@@ -344,7 +387,6 @@ def test_authentication_cors_for_local_frontend():
     )
 
 
->>>>>>> 660e4d4 (add projet version 1.0.0)
 def test_article_claim_evidence_manual_cross_check(tmp_path, monkeypatch):
     monkeypatch.setattr(source_store, "DB_PATH", tmp_path / "sources.sqlite3")
     sources = []
