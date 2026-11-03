@@ -1,0 +1,81 @@
+// Les polices sont importées dans main.jsx (Fontsource), pas ici :
+// deux @use de "index.css" créaient un conflit de namespace dans Sass.
+$font-1: "Poppins", sans-serif;
+$font-2: "Dosis", sans-serif;
+$font-3: "Josefin Sans", serif;
+$font-4: "Inter", sans-serif;
+
+// Variables
+$primary-color: #007bff;
+$secondary-color: #6c757d;
+$background-color: #f8f9fa;
+$border-color: #dee2e6;
+$text-color: #333;
+$error-color: #dc3545;
+$success-color: #28a745;
+
+$color-1: #f85519f7;
+$color-2: #9c9c9c;
+$color-3: white;
+$color-4: rgb(13, 13, 13);
+$color-5: #ffffff;
+$color-6: #ff6934;
+$color-7: #ECF0F1;
+$color-8: #e0e0e0;
+
+$borderradius: 50px;
+$border: 5px;
+$shadow: 0 1px 3px #333;
+$min-heigth: 95vh;
+
+@mixin verticalcenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+// main.jsx importe Bootstrap AVANT ces styles : plus besoin de !important
+body {
+    margin: 1rem auto;
+    font-family: $font-4;
+    max-width: 1200px;
+    color: $color-4;
+    background-color: $color-5;
+    min-height: 100vh;
+
+    // Classes ajoutées par DarkContext
+    &.dark {
+        color: $color-7;
+        background-color: #121212;
+    }
+}
+
+button {
+    cursor: pointer;
+}
+
+li {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: $color-6;
+}
+
+.home, .knoledges, .portfolio, .contact {
+    display: flex;
+    @media screen and (max-width: 850px) {
+        display: block;
+    }
+}
+
+.homecontent, .knoledgescontent, .portfoliocontent, .contactcontent {
+    margin-left: 4rem;
+    @media screen and (max-width: 850px) {
+        margin-left: 0 !important;
+    }
+}

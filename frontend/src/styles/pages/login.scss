@@ -1,0 +1,409 @@
+// ============================================================
+//  Login.scss — Pages Connexion & Inscription (Cheick-Ko)
+//  Tous les styles de Login.jsx et Register.jsx sont ici.
+// ============================================================
+
+// ---------- Palette (issue du logo Cheick-Ko) ----------
+$ck-black:      #050505;   // fond du logo
+$ck-surface:    #0f0f11;   // carte
+$ck-surface-2:  #18181b;   // champs de saisie
+$ck-border:     #2a2a2f;   // bordures discrètes
+$ck-red:        #f50f0f;   // rouge principal du "K"
+$ck-red-light:  #ff3b3b;   // rouge clair (survols, liens)
+$ck-red-dark:   #c20000;   // rouge foncé (bas du dégradé du "K")
+$ck-white:      #ffffff;   // blanc du "C" et du texte
+$ck-silver:     #e6e6ec;   // blanc légèrement gris (labels)
+$ck-muted:      #9c9ca6;   // gris du texte secondaire
+$ck-success:    #2ecc71;
+
+$ck-gradient-red: linear-gradient(135deg, $ck-red-light 0%, $ck-red 45%, $ck-red-dark 100%);
+
+// ---------- Fond plein écran ----------
+// (body a un max-width: 1200px dans settings.scss : on le lève sur ces pages)
+body:has(.auth-page) {
+  max-width: none;
+  margin: 0;
+  background-color: $ck-black;
+}
+
+// ---------- Page ----------
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  // Lueur rouge dans deux coins, comme sur le logo
+  background:
+    radial-gradient(circle at 0% 0%, rgba($ck-red, 0.35) 0%, transparent 42%),
+    radial-gradient(circle at 100% 100%, rgba($ck-red, 0.3) 0%, transparent 42%),
+    $ck-black;
+}
+
+.auth-slogan {
+  max-width: 720px;
+  margin: 0 0 1.75rem;
+  padding: 0 10px;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.3px;
+  text-align: center;
+  color: $ck-white;
+
+  // petit trait rouge sous le slogan
+  &::after {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 4px;
+    margin: 16px auto 0;
+    border-radius: 4px;
+    background: $ck-gradient-red;
+  }
+}
+
+// ---------- Carte ----------
+.auth-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 38px 30px 32px;
+  background: $ck-surface;
+  border: 1px solid $ck-border;
+  border-radius: 20px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.65),
+    0 0 40px rgba($ck-red, 0.12);
+
+  // liseré rouge en haut de la carte
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: $ck-gradient-red;
+  }
+}
+
+// ---------- En-tête & logo ----------
+.auth-header {
+  text-align: center;
+  margin-bottom: 28px;
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: $ck-white;
+  }
+}
+
+.brand {
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+.brand-logo {
+  width: 88px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 20px;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+// ---------- Formulaire ----------
+.auth-form {
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: $ck-silver;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: $ck-white;
+      background: $ck-surface-2;
+      border: 1.5px solid $ck-border;
+      border-radius: 12px;
+      box-sizing: border-box;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+
+      &::placeholder {
+        color: #6f6f78;
+      }
+
+      &:hover:not(:disabled) {
+        border-color: #3d3d44;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $ck-red;
+        box-shadow: 0 0 0 3px rgba($ck-red, 0.22);
+      }
+
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      // Garde le champ sombre quand le navigateur remplit automatiquement
+      &:-webkit-autofill,
+      &:-webkit-autofill:focus {
+        -webkit-text-fill-color: $ck-white;
+        caret-color: $ck-white;
+        box-shadow: 0 0 0 1000px $ck-surface-2 inset;
+        border-color: $ck-border;
+      }
+    }
+  }
+}
+
+.separator {
+  height: 1px;
+  margin: 25px 0;
+  background: linear-gradient(to right, transparent, $ck-border, transparent);
+}
+
+// ---------- Bouton ----------
+.auth-button {
+  position: relative;
+  width: 100%;
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $ck-white;
+  background: $ck-gradient-red;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  &:hover:not(:disabled):not(.loading) {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+    box-shadow: 0 8px 24px rgba($ck-red, 0.45);
+  }
+
+  &:active:not(:disabled):not(.loading) {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba($ck-red, 0.4);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $ck-white;
+    outline-offset: 3px;
+  }
+
+  &:disabled,
+  &.loading {
+    background: #3a3a40;
+    color: $ck-muted;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    filter: none;
+  }
+
+  // Petit spinner pendant le chargement
+  &.loading {
+    color: transparent; // le spinner remplace le texte
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      margin: -9px 0 0 -9px;
+      border: 2px solid rgba($ck-white, 0.25);
+      border-top-color: $ck-red-light;
+      border-radius: 50%;
+      animation: auth-spin 0.8s linear infinite;
+    }
+  }
+}
+
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
+}
+
+// ---------- Liens ----------
+.auth-links {
+  margin-top: 24px;
+  text-align: center;
+
+  .forgot-password {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: $ck-muted;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $ck-red-light;
+      text-decoration: underline;
+    }
+  }
+
+  .switch-auth {
+    font-size: 14px;
+    color: $ck-muted;
+
+    a {
+      margin-left: 5px;
+      font-weight: 600;
+      color: $ck-red-light;
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: $ck-white;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// ---------- Messages ----------
+.auth-message {
+  margin-top: 20px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  border-radius: 10px;
+
+  &.error {
+    color: #ff8f8f;
+    background: rgba($ck-red, 0.12);
+    border: 1px solid rgba($ck-red, 0.4);
+  }
+
+  &.success {
+    color: #5ee59a;
+    background: rgba($ck-success, 0.12);
+    border: 1px solid rgba($ck-success, 0.4);
+  }
+}
+
+// ============================================================
+//  Responsive
+// ============================================================
+
+// Tablette (576px – 767px)
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .auth-container {
+    max-width: 90%;
+    padding: 34px 28px 30px;
+  }
+
+  .brand-logo {
+    width: 80px;
+  }
+}
+
+// Mobile (< 576px)
+@media (max-width: 575.98px) {
+  .auth-page {
+    justify-content: flex-start; // évite que le clavier masque le formulaire
+    padding: 20px 14px;
+  }
+
+  .auth-slogan {
+    margin-bottom: 1.25rem;
+  }
+
+  .auth-container {
+    padding: 28px 20px 24px;
+    border-radius: 16px;
+  }
+
+  .brand-logo {
+    width: 72px;
+    border-radius: 16px;
+  }
+
+  .auth-header {
+    margin-bottom: 22px;
+
+    h2 {
+      font-size: 20px;
+    }
+  }
+
+  .auth-form .form-group {
+    margin-bottom: 16px;
+
+    label {
+      font-size: 13px;
+    }
+
+    .input-field {
+      padding: 11px 12px;
+      font-size: 16px; // 16px minimum : évite le zoom automatique sur iPhone
+    }
+  }
+
+  .separator {
+    margin: 20px 0;
+  }
+
+  .auth-button {
+    padding: 14px;
+  }
+
+  .auth-links {
+    margin-top: 20px;
+
+    .forgot-password,
+    .switch-auth {
+      font-size: 13px;
+    }
+  }
+}
+
+// Mobile en paysage
+@media (max-width: 767.98px) and (orientation: landscape) {
+  .auth-page {
+    justify-content: flex-start;
+    padding: 12px;
+  }
+
+  .auth-slogan {
+    margin-bottom: 0.75rem;
+    font-size: 1.4rem;
+  }
+}
+
+// Très petits écrans
+@media (max-width: 320px) {
+  .auth-container {
+    padding: 22px 15px;
+  }
+}
+
+// Respecte le réglage « réduire les animations » du système
+@media (prefers-reduced-motion: reduce) {
+  .auth-page * {
+    transition: none !important;
+  }
+}

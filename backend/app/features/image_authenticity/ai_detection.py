@@ -1,3 +1,4 @@
+"""Détection des images générées par IA via Sightengine."""
 import hashlib
 import json
 import os

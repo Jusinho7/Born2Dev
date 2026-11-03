@@ -1,19 +1,31 @@
 import requests
-from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+)
 
-from check_image import check_image
-from check_video import (
+from app.check_video import (
     get_video_job,
     save_video_callback,
     submit_video,
     validate_callback_token,
 )
+from app.features.image_authenticity.router import router as image_authenticity_router
+from app.features.source_reliability.router import (
+    articles_router as article_verification_router,
+    router as source_reliability_router,
+)
+from app.media_validation import validate_video
+from app.security import rate_limit, require_api_key
 
-app = FastAPI(title="AI Media Detector")
+app = FastAPI(title="Check-Eko - AI Media Detector")
 
-MAX_SIZE = 10 * 1024 * 1024
 MAX_VIDEO_SIZE = 100 * 1024 * 1024
-ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_VIDEO_TYPES = {
     "video/mp4",
     "video/quicktime",
@@ -22,25 +34,13 @@ ALLOWED_VIDEO_TYPES = {
     "video/x-matroska",
 }
 
-
-@app.post("/check")
-def check(file: UploadFile = File(...)):
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(415, "Format non supporté (jpeg, png, webp)")
-
-    content = file.file.read(MAX_SIZE + 1)
-    if len(content) > MAX_SIZE:
-        raise HTTPException(413, "Image trop lourde (max 10 Mo)")
-
-    try:
-        return check_image(content, file.filename or "image")
-    except requests.RequestException:
-        raise HTTPException(502, "Erreur du service de détection")
-    except RuntimeError as e:
-        raise HTTPException(500, str(e))
+protected = [Depends(require_api_key), Depends(rate_limit)]
+app.include_router(image_authenticity_router)
+app.include_router(source_reliability_router)
+app.include_router(article_verification_router)
 
 
-@app.post("/check-video", status_code=202)
+@app.post("/check-video", status_code=202, dependencies=protected)
 def check_video(file: UploadFile = File(...)):
     if file.content_type not in ALLOWED_VIDEO_TYPES:
         raise HTTPException(
@@ -50,6 +50,11 @@ def check_video(file: UploadFile = File(...)):
     content = file.file.read(MAX_VIDEO_SIZE + 1)
     if len(content) > MAX_VIDEO_SIZE:
         raise HTTPException(413, "Vidéo trop lourde (max 100 Mo)")
+
+    try:
+        validate_video(content)
+    except ValueError as e:
+        raise HTTPException(415, str(e))
 
     try:
         return submit_video(content, file.filename or "video")
@@ -77,7 +82,7 @@ async def video_callback(request: Request, token: str = Query(...)):
     return {"received": True}
 
 
-@app.get("/check-video/{request_id}")
+@app.get("/check-video/{request_id}", dependencies=protected)
 def video_result(request_id: str):
     result = get_video_job(request_id)
     if result is None:
