@@ -14,9 +14,24 @@ export const getErrorMessage = (err, fallback) => {
     return `Erreur de validation : ${validationErrors}`;
   }
 
+<<<<<<< HEAD
+=======
+  if (Array.isArray(data?.detail)) {
+    const validationErrors = data.detail
+      .map((item) => item.msg)
+      .filter(Boolean)
+      .join(", ");
+    if (validationErrors) return `Erreur de validation : ${validationErrors}`;
+  }
+
+>>>>>>> 660e4d4 (add projet version 1.0.0)
   if (!err.response) {
     return "Serveur injoignable. Vérifiez votre connexion.";
   }
 
+<<<<<<< HEAD
   return data?.message || data?.error || fallback;
+=======
+  return data?.message || data?.error || data?.detail || fallback;
+>>>>>>> 660e4d4 (add projet version 1.0.0)
 };

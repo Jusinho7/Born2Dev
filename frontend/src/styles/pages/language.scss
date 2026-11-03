@@ -1,0 +1,64 @@
+.language-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 650;
+
+  select {
+    min-height: 36px;
+    padding: 0 28px 0 10px;
+    border: 1px solid currentColor;
+    border-radius: 9px;
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+  }
+}
+
+.language-selector-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.auth-language {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  color: #fff;
+
+  select {
+    border-color: #555;
+    background: #18181b;
+  }
+}
+
+.project-dashboard .language-selector {
+  color: var(--dashboard-ink);
+
+  select {
+    min-height: 39px;
+    border-color: var(--dashboard-line);
+    background: var(--dashboard-paper);
+  }
+}
+
+@media (max-width: 760px) {
+  .project-dashboard .project-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 16px 0;
+  }
+
+  .project-dashboard .project-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}

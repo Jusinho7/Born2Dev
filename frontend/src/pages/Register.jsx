@@ -3,11 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import useDocumentTitle from "../components/useDocumentTitle";
-import LanguageSelector from "../components/LanguageSelector";
+<<<<<<< HEAD
 
 const MIN_PASSWORD_LENGTH = 6;
+=======
+import LanguageSelector from "../components/LanguageSelector";
+import { Localized } from "../contexts/LanguageContext";
 
-const Register = ({ t, language, setLanguage }) => {
+const MIN_PASSWORD_LENGTH = 8;
+>>>>>>> 660e4d4 (add projet version 1.0.0)
+
+const Register = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -55,7 +61,11 @@ const Register = ({ t, language, setLanguage }) => {
         password_confirmation: formData.confirmPassword,
       });
 
+<<<<<<< HEAD
       setMessage(res.data?.message || "Inscription réussie 🎉");
+=======
+      setMessage(res.data?.message || "Inscription réussie");
+>>>>>>> 660e4d4 (add projet version 1.0.0)
       setMessageType("success");
 
       setTimeout(() => navigate("/login"), 1500);
@@ -68,15 +78,16 @@ const Register = ({ t, language, setLanguage }) => {
   };
 
   return (
+<<<<<<< HEAD
     <div className="auth-page">
-      <div className="auth-change">
-        <LanguageSelector
-          language={language}
-          setLanguage={setLanguage}
-        />
+=======
+    <Localized>
+    <div className="auth-page">
+      <div className="auth-language">
+        <LanguageSelector />
       </div>
-
-      <h1 className="auth-slogan">Check-Eko</h1>
+>>>>>>> 660e4d4 (add projet version 1.0.0)
+      <h1 className="auth-slogan">Ny vaovao marina</h1>
 
       <div className="auth-container">
         <div className="auth-header">
@@ -88,17 +99,17 @@ const Register = ({ t, language, setLanguage }) => {
             />
           </div>
 
-          <h2>{t.register}</h2>
+          <h2>Créer un compte</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="username">{t.username}</label>
+            <label htmlFor="username">Nom d'utilisateur :</label>
             <input
               id="username"
               type="text"
               name="username"
-              placeholder={t.usernamePlaceholder}
+              placeholder="Entrez votre nom d'utilisateur"
               value={formData.username}
               onChange={handleChange}
               required
@@ -109,12 +120,12 @@ const Register = ({ t, language, setLanguage }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">{t.email}</label>
+            <label htmlFor="email">Email :</label>
             <input
               id="email"
               type="email"
               name="email"
-              placeholder={t.emailPlaceholder}
+              placeholder="Entrez votre adresse email"
               value={formData.email}
               onChange={handleChange}
               required
@@ -125,12 +136,12 @@ const Register = ({ t, language, setLanguage }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">{t.password}</label>
+            <label htmlFor="password">Mot de passe :</label>
             <input
               id="password"
               type="password"
               name="password"
-              placeholder={t.createPasswordPlaceholder}
+              placeholder="Créez votre mot de passe"
               value={formData.password}
               onChange={handleChange}
               required
@@ -142,12 +153,12 @@ const Register = ({ t, language, setLanguage }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">{t.confirmPassword}</label>
+            <label htmlFor="confirmPassword">Confirmer le mot de passe :</label>
             <input
               id="confirmPassword"
               type="password"
               name="confirmPassword"
-              placeholder={t.confirmPasswordPlaceholder}
+              placeholder="Confirmez votre mot de passe"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -165,13 +176,13 @@ const Register = ({ t, language, setLanguage }) => {
             disabled={loading}
             className={`auth-button ${loading ? "loading" : ""}`}
           >
-            {loading ? t.registering : `${t.registerButton} →`}
+            {loading ? "Création du compte..." : "Créer un compte →"}
           </button>
         </form>
 
         <div className="auth-links">
           <div className="switch-auth">
-            {t.alreadyAccount} <Link to="/login">{t.loginLink}</Link>
+            Vous avez déjà un compte ? <Link to="/login">Se connecter</Link>
           </div>
         </div>
 
@@ -182,6 +193,10 @@ const Register = ({ t, language, setLanguage }) => {
         )}
       </div>
     </div>
+<<<<<<< HEAD
+=======
+    </Localized>
+>>>>>>> 660e4d4 (add projet version 1.0.0)
   );
 };
 

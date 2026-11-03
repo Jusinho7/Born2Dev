@@ -1,6 +1,10 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+<<<<<<< HEAD
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+=======
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+>>>>>>> 660e4d4 (add projet version 1.0.0)
 
 const api = axios.create({
   baseURL: API_URL,
@@ -13,8 +17,8 @@ let isRefreshing = false;
 let failedQueue = [];
 
 // Ces routes ne doivent jamais déclencher de refresh de token
-// (un 401 sur /auth/login = mauvais identifiants, pas un token expiré)
-const AUTH_ENDPOINTS = ["/auth/login", "/auth/refresh"];
+// (un 401 sur /login = mauvais identifiants, pas un token expiré)
+const AUTH_ENDPOINTS = ["/login", "/register", "/refresh-token"];
 const isAuthEndpoint = (url = "") =>
   AUTH_ENDPOINTS.some((path) => url.endsWith(path));
 
@@ -49,7 +53,6 @@ const endRequest = () => {
 };
 
 const getErrorMessage = (error) =>
-  error.response?.data?.detail ||
   error.response?.data?.message ||
   error.response?.data?.error ||
   error.message ||
@@ -131,7 +134,7 @@ api.interceptors.response.use(
       }
 
       // axios "nu" (et non `api`) pour ne pas repasser dans les intercepteurs
-      const { data } = await axios.post(`${API_URL}/auth/refresh`, {
+      const { data } = await axios.post(`${API_URL}/refresh-token`, {
         refreshToken,
       });
 
@@ -177,18 +180,11 @@ export const retryRequest = async (fn, retries = 3, delay = 1000) => {
   }
 };
 
-// ---------- 🔐 Authentification (routes FastAPI) ----------
-// Inscription = création d'un utilisateur : POST /users
-export const registerUser = ({ username, email, password }) =>
-  api.post("/users", { username, email, password });
-
-// Connexion : POST /auth/login -> { access_token, token_type }
-export const loginUser = (credentials) => api.post("/auth/login", credentials);
-
-// JWT sans état côté serveur : la déconnexion se fait côté client
-export const logoutUser = () => Promise.resolve();
-
-export const verifyToken = () => api.get("/auth/me");
-export const getUserProfile = () => api.get("/auth/me");
+// ---------- 🔐 Authentification ----------
+export const registerUser = (userData) => api.post("/register", userData);
+export const loginUser = (credentials) => api.post("/login", credentials);
+export const logoutUser = () => api.post("/logout");
+export const verifyToken = () => api.get("/verify-token");
+export const getUserProfile = () => api.get("/me");
 
 export default api;

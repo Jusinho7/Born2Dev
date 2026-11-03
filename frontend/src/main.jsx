@@ -11,11 +11,23 @@ import '@fontsource/inter'
 
 import App from './App.jsx'
 import { ThemeProvider } from './contexts/DarkContext'
+<<<<<<< HEAD
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
       <App />
     </ThemeProvider>
+=======
+import { LanguageProvider } from './contexts/LanguageContext'
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <LanguageProvider>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </LanguageProvider>
+>>>>>>> 660e4d4 (add projet version 1.0.0)
   </StrictMode>,
 )

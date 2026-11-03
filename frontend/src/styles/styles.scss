@@ -1,4 +1,11 @@
 @use "./settings" as *;
 @use "./pages/Home";
+<<<<<<< HEAD
 @use "./pages/login";
-@use "./pages/navigation";
+=======
+@use "./pages/login";
+@use "./pages/verification";
+@use "./pages/project-dashboard";
+@use "./pages/monitoring";
+@use "./pages/language";
+>>>>>>> 660e4d4 (add projet version 1.0.0)

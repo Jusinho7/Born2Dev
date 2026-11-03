@@ -1,73 +1,29 @@
-import { useState, useRef, useEffect } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 
-const languages = [
-  { code: "fr", label: "Français", flag: "fr" },
-  { code: "mg", label: "Malagasy", flag: "mg" },
-  { code: "en", label: "English", flag: "gb" },
+const LANGUAGES = [
+  { code: "mg", label: "Malagasy" },
+  { code: "fr", label: "Français" },
+  { code: "en", label: "English" },
 ];
 
-const LanguageSelector = ({ language, setLanguage }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
-
-  const selected =
-    languages.find((item) => item.code === language) || languages[0];
-
-  useEffect(() => {
-    const closeMenu = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", closeMenu);
-    return () => document.removeEventListener("mousedown", closeMenu);
-  }, []);
+const LanguageSelector = () => {
+  const { language, setLanguage } = useLanguage();
 
   return (
-    <div className="language-selector" ref={menuRef}>
-      <button
-        type="button"
-        className="language-trigger"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-label="Choisir la langue"
+    <label className="language-selector">
+      <span className="language-selector-label">Language / Fiteny / Langue</span>
+      <select
+        aria-label="Language / Fiteny / Langue"
+        value={language}
+        onChange={(event) => setLanguage(event.target.value)}
       >
-        <img
-          src={`https://flagcdn.com/w40/${selected.flag}.png`}
-          alt=""
-        />
-        <span>{selected.code.toUpperCase()}</span>
-        <span className={`language-arrow ${isOpen ? "rotated" : ""}`}>
-          ▼
-        </span>
-      </button>
-
-      {isOpen && (
-        <div className="language-menu">
-          {languages.map((item) => (
-            <button
-              type="button"
-              key={item.code}
-              className={`language-option ${
-                language === item.code ? "selected" : ""
-              }`}
-              onClick={() => {
-                setLanguage(item.code);
-                setIsOpen(false);
-              }}
-            >
-              <img
-                src={`https://flagcdn.com/w40/${item.flag}.png`}
-                alt=""
-              />
-              <span>{item.code.toUpperCase()} — {item.label}</span>
-              {language === item.code && <span>✓</span>}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+        {LANGUAGES.map(({ code, label }) => (
+          <option key={code} value={code}>
+            {label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 };
 
