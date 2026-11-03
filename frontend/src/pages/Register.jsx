@@ -3,10 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../services/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import useDocumentTitle from "../components/useDocumentTitle";
+import LanguageSelector from "../components/LanguageSelector";
 
 const MIN_PASSWORD_LENGTH = 6;
 
-const Register = () => {
+const Register = ({ t, language, setLanguage }) => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -68,7 +69,14 @@ const Register = () => {
 
   return (
     <div className="auth-page">
-      <h1 className="auth-slogan">Ny vaovao marina</h1>
+      <div className="auth-change">
+        <LanguageSelector
+          language={language}
+          setLanguage={setLanguage}
+        />
+      </div>
+
+      <h1 className="auth-slogan">Check-Eko</h1>
 
       <div className="auth-container">
         <div className="auth-header">
@@ -80,17 +88,17 @@ const Register = () => {
             />
           </div>
 
-          <h2>Créer un compte</h2>
+          <h2>{t.register}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="username">Nom d'utilisateur :</label>
+            <label htmlFor="username">{t.username}</label>
             <input
               id="username"
               type="text"
               name="username"
-              placeholder="Entrez votre nom d'utilisateur"
+              placeholder={t.usernamePlaceholder}
               value={formData.username}
               onChange={handleChange}
               required
@@ -101,12 +109,12 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email :</label>
+            <label htmlFor="email">{t.email}</label>
             <input
               id="email"
               type="email"
               name="email"
-              placeholder="Entrez votre adresse email"
+              placeholder={t.emailPlaceholder}
               value={formData.email}
               onChange={handleChange}
               required
@@ -117,12 +125,12 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mot de passe :</label>
+            <label htmlFor="password">{t.password}</label>
             <input
               id="password"
               type="password"
               name="password"
-              placeholder="Créez votre mot de passe"
+              placeholder={t.createPasswordPlaceholder}
               value={formData.password}
               onChange={handleChange}
               required
@@ -134,12 +142,12 @@ const Register = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirmer le mot de passe :</label>
+            <label htmlFor="confirmPassword">{t.confirmPassword}</label>
             <input
               id="confirmPassword"
               type="password"
               name="confirmPassword"
-              placeholder="Confirmez votre mot de passe"
+              placeholder={t.confirmPasswordPlaceholder}
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -157,13 +165,13 @@ const Register = () => {
             disabled={loading}
             className={`auth-button ${loading ? "loading" : ""}`}
           >
-            {loading ? "Création du compte..." : "Créer un compte →"}
+            {loading ? t.registering : `${t.registerButton} →`}
           </button>
         </form>
 
         <div className="auth-links">
           <div className="switch-auth">
-            Vous avez déjà un compte ? <Link to="/login">Se connecter</Link>
+            {t.alreadyAccount} <Link to="/login">{t.loginLink}</Link>
           </div>
         </div>
 

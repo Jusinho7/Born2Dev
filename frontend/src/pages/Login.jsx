@@ -4,8 +4,8 @@ import { loginUser } from "../services/api";
 import { login } from "../services/auth";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import useDocumentTitle from "../components/useDocumentTitle";
-
-const Login = () => {
+import LanguageSelector from "../components/LanguageSelector";
+const Login = ({ t, language, setLanguage }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(null); // "error" | "success"
@@ -18,32 +18,43 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    setMessageType(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await loginUser({
-        email: formData.email,
-        password: formData.password,
-      });
+  setLoading(true);
+  setMessage("");
+  setMessageType(null);
 
-      const { access_token: token, refresh_token: refreshToken } = res.data;
-      if (!token) {
-        throw new Error("Réponse invalide du serveur (token manquant)");
-      }
+  try {
+    const res = await loginUser({
+      email: formData.email,
+      password: formData.password,
+    });
 
-      login(token, refreshToken);
+    console.log("Réponse du serveur :", res.data);
+
+    const accessToken = res.data.access_token || res.data.token;
+    const refreshToken = res.data.refresh_token || res.data.refreshToken;
+
+    if (!accessToken) {
+    throw new Error("Le serveur n'a retourné aucun access token.");
+    }
+
+      login(accessToken, refreshToken);
+
       setMessage("Connexion réussie ✅");
       setMessageType("success");
 
-      setTimeout(() => navigate("/", { replace: true }), 1000);
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 500);
+
     } catch (err) {
-      console.error("Erreur détaillée:", err.response || err);
+      console.error("Erreur détaillée :", err.response?.data || err);
+
       setMessage(getErrorMessage(err, "Impossible de se connecter"));
       setMessageType("error");
+
     } finally {
       setLoading(false);
     }
@@ -51,7 +62,14 @@ const Login = () => {
 
   return (
     <div className="auth-page">
-      <h1 className="auth-slogan">Ny vaovao marina</h1>
+      <div className="auth-change">
+        <LanguageSelector
+          language={language}
+          setLanguage={setLanguage}
+        />
+      </div>
+
+      <h1 className="auth-slogan">Check-Eko</h1>
 
       <div className="auth-container">
         <div className="auth-header">
@@ -63,17 +81,17 @@ const Login = () => {
             />
           </div>
 
-          <h2>Connexion</h2>
+          <h2>{t.login}</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Email :</label>
+            <label htmlFor="email">{t.email}</label>
             <input
               id="email"
               type="email"
               name="email"
-              placeholder="Entrez votre adresse email"
+              placeholder={t.emailPlaceholder}
               value={formData.email}
               onChange={handleChange}
               required
@@ -84,12 +102,12 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mot de passe :</label>
+            <label htmlFor="password">{t.password}</label>
             <input
               id="password"
               type="password"
               name="password"
-              placeholder="Entrez votre mot de passe"
+              placeholder={t.passwordPlaceholder}
               value={formData.password}
               onChange={handleChange}
               required
@@ -106,16 +124,16 @@ const Login = () => {
             disabled={loading}
             className={`auth-button ${loading ? "loading" : ""}`}
           >
-            {loading ? "Connexion..." : "Se connecter →"}
+            {loading ? t.Connecting : `${t.submit} →`}
           </button>
         </form>
 
         <div className="auth-links">
           <Link to="/forgot-password" className="forgot-password">
-            Mot de passe oublié?
+            {t.forgotPassword}
           </Link>
           <div className="switch-auth">
-            Vous n'avez pas un compte ? <Link to="/register">Créer un compte</Link>
+            {t.noAccount} <Link to="/register">{t.createAccount}</Link>
           </div>
         </div>
 
